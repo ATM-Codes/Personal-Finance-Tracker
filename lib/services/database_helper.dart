@@ -3,6 +3,10 @@ import 'package:path/path.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
 
+final String dbName = 'expenses.db';
+final String expTable = 'expenses';
+final String catTable = 'categories';
+
 class DatabaseHelper {
   //singleton pattern - only one instance
   static final DatabaseHelper instance = DatabaseHelper.init();
@@ -13,7 +17,7 @@ class DatabaseHelper {
   //GET DATABASE INSTANCE
   Future<Database> get getDatabase async {
     if (_database != null) return _database!;
-    _database = await _initDB('expenses.db');
+    _database = await _initDB(dbName);
     return _database!;
   }
 
@@ -62,5 +66,64 @@ class DatabaseHelper {
   Future closeDB() async {
     final db = await instance.getDatabase;
     db.close();
+  }
+
+  // CREATE - Insert expense
+  Future<int> createExpense(Expense expense) async {
+    final db = await _database!;
+    return await db.insert(expTable, expense.toMap());
+  }
+
+  //READ - Get all expense
+
+  Future<List<Expense>> getAllExpenses() async {
+    final db = await _database!;
+    final List<Map<String, dynamic>> maps = await db.query(
+      expTable,
+      orderBy: 'date DESC',
+    );
+
+    return List.generate(maps.length, (index) => Expense.fromMap(maps[index]));
+  }
+
+  //READ - Get all categories
+
+  Future<List<Category>> getAllCategories() async {
+    final db = await _database!;
+    final List<Map<String, dynamic>> maps = await db.query(catTable);
+
+    return List.generate(maps.length, (index) => Category.fromMap(maps[index]));
+  }
+
+  // UPDATE - Update expense
+  Future<int> updateExpense(Expense expense) async {
+    final db = await _database!;
+    return await db.update(
+      expTable,
+      expense.toMap(),
+      where: 'id = ?',
+      whereArgs: [expense.id],
+    );
+  }
+
+  // DELETE - Delete expense
+
+  Future<int> deleteExpense(int id) async {
+    final db = await _database!;
+    return await db.delete(expTable, where: 'id = ?', whereArgs: [id]);
+  }
+
+  //READ - Get expense by category
+
+  Future<List<Expense>> getAllExpensesByCategory(int id) async {
+    final db = await _database!;
+    final List<Map<String, dynamic>> maps = await db.query(
+      expTable,
+      where: 'catId = ?',
+      whereArgs: [id],
+      orderBy: 'date DESC',
+    );
+
+    return List.generate(maps.length, (index) => Expense.fromMap(maps[index]));
   }
 }

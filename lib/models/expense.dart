@@ -23,8 +23,8 @@ class Expense {
       'amount': amount,
       'catId': catId,
       'desc': desc,
-      'date': date,
-      'createdAt': createdAt,
+      'date': date.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 

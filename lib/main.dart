@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personal_finance_tracker/screens/home_screen.dart';
 import 'package:personal_finance_tracker/services/database_helper.dart';
 
 void main() async {
@@ -25,14 +26,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Expense Tracker',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Scaffold(
-        appBar: AppBar(title: Text('Expense Tracker')),
-        body: Center(child: Text('Database initialized! Check console.')),
-      ),
+      home: HomeScreen(),
     );
   }
 }
