@@ -4,6 +4,7 @@ import 'package:personal_finance_tracker/services/database_helper.dart';
 import 'package:personal_finance_tracker/models/expense.dart';
 import 'package:personal_finance_tracker/screens/add_expense_screen.dart';
 import 'package:personal_finance_tracker/utils/date_formatter.dart';
+import 'package:personal_finance_tracker/widgets/spending_chart.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Expense> _expenses = [];
   List<Category> _categories = [];
   double _totalSpending = 0.0;
-  final int? _selectedCategoryId = null;
+  int? _selectedCategoryId = null;
 
   @override
   void initState() {
@@ -72,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _expenses = filteredExpenses;
       _totalSpending = filteredTotal;
+      _selectedCategoryId = selectedValue;
     });
   }
 
@@ -101,6 +103,22 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     return sum;
+  }
+
+  Map<int, double> _getSpendingByCategory() {
+    Map<int, double> spendingMap = {};
+
+    for (var expense in _expenses) {
+      if (spendingMap.containsKey(expense.catId)) {
+        spendingMap[expense.catId] =
+            spendingMap[expense.catId]! + expense.amount;
+      } else {
+        spendingMap[expense.catId] = expense.amount;
+      }
+    }
+
+    print("Spending breakdown: $spendingMap");
+    return spendingMap;
   }
 
   @override
@@ -315,16 +333,57 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddExpenseScreen()),
-          );
-          _loadAll();
-        },
-        child: Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'Chart',
+            onPressed: () {
+              _showChartBottomSheet(context);
+            },
+            child: Icon(Icons.pie_chart),
+            backgroundColor: Colors.lightBlueAccent,
+          ),
+          SizedBox(height: 16),
+          FloatingActionButton(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddExpenseScreen()),
+              );
+              _loadAll();
+            },
+            child: Icon(Icons.add),
+          ),
+        ],
       ),
+    );
+  }
+
+  void _showChartBottomSheet(BuildContext context) {
+    if (_expenses.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Add some expense first')));
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: SpendingChart(
+              spendingData: _getSpendingByCategory(),
+              categories: _categories,
+            ),
+          ),
     );
   }
 }
