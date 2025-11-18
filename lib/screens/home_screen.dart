@@ -1,12 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:personal_finance_tracker/models/category.dart';
 import 'package:personal_finance_tracker/services/database_helper.dart';
 import 'package:personal_finance_tracker/models/expense.dart';
 import 'package:personal_finance_tracker/screens/add_expense_screen.dart';
 import 'package:personal_finance_tracker/utils/date_formatter.dart';
-import 'dart:math';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Expense> _expenses = [];
   List<Category> _categories = [];
   double _totalSpending = 0.0;
-  int? _selectedCategoryId = null;
+  final int? _selectedCategoryId = null;
 
   @override
   void initState() {
@@ -69,17 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void dropdownCallback(int? selectedValue) async {
-    setState(() {
-      _selectedCategoryId = selectedValue;
-      if (_selectedCategoryId != null) {
-        final selectedCategory = _categories.firstWhere(
-          (cat) => cat.id == _selectedCategoryId,
-          orElse: () => throw Exception("Category not found"),
-        );
-        //print("Selected Category: ${selectedCategory.name}");
-      }
-    });
-
     final filteredExpenses = await _getFilteredExpenses(selectedValue);
     final filteredTotal = await _getTotalOfExpenses(selectedValue);
 
@@ -100,18 +86,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<double> _getTotalOfExpenses(int? id) async {
     double sum = 0.0;
-    var tempExpenses;
+    List<Expense> tempExpenses;
     if (id == null) {
       tempExpenses = await DatabaseHelper.instance.getAllExpenses();
       for (var expense in tempExpenses) {
         sum += expense.amount;
-        print(sum.toString());
+        //print(sum.toString());
       }
     } else {
       tempExpenses = await DatabaseHelper.instance.getAllExpensesByCategory(id);
       for (var expense in tempExpenses) {
         sum += expense.amount;
-        print(sum.toString());
+        //print(sum.toString());
       }
     }
     return sum;
@@ -122,13 +108,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 100,
-        title: Text(
-          _totalSpending.toString(),
-          style: TextStyle(
-            fontSize: 40,
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
+        title: Column(
+          children: [
+            Text(
+              _selectedCategoryId == null ? "Total Spending" : 'Category Total',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            Text(
+              "LKR ${_totalSpending.toString()}",
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.lightBlueAccent,
@@ -150,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         value: category.id,
                         child: Text(category.name),
                       );
-                    }).toList(),
+                    }),
                   ],
                   value: _selectedCategoryId,
                   onChanged: dropdownCallback,
@@ -161,7 +159,37 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child:
                 _expenses.isEmpty
-                    ? Center(child: Text("No expenses added yet. Add one!"))
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_long,
+                            size: 80,
+                            color: Colors.grey[300],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            _selectedCategoryId == null
+                                ? "No expenses yet"
+                                : "No expenses in this category",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Tap + to add an expense",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                     : ListView.builder(
                       itemCount: _expenses.length,
                       itemBuilder: (context, index) {
