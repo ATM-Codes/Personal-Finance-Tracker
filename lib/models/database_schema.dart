@@ -6,7 +6,7 @@
 // - date (TEXT - ISO format)
 // - created_at (TEXT)
 
-// CATEGORIES TABLE  
+// CATEGORIES TABLE
 // - id (INTEGER PRIMARY KEY)
 // - name (TEXT)
 // - icon (TEXT - icon name)
