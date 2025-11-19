@@ -123,7 +123,7 @@ lib/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/personal_finance_tracker.git
+git clone https://github.com/ATM-Codes/personal_finance_tracker.git
 cd personal_finance_tracker
 ```
 
@@ -195,7 +195,7 @@ This project is open source and available under the MIT License.
 **Your Name**
 - Location: Negombo, Sri Lanka
 - Target: Flutter/React Native Developer position by Feb 2026
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@ATM-Codes](https://github.com/ATM-Codes)
 
 ---
 
