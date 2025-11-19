@@ -212,8 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: _expenses.length,
                       itemBuilder: (context, index) {
                         final expense = _expenses[index];
-                        final categoryId = _expenses[index].catId;
-                        final iconName = (_categories[categoryId].icon);
+                        final category = _getCategoryForExpense(expense);
+                        final iconName = category?.icon ?? 'more_horiz';
                         return Dismissible(
                           key: Key(expense.id.toString()),
                           direction: DismissDirection.endToStart,
